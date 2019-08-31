@@ -13,7 +13,7 @@ SPELL_WIDTH = 180
 SPELL_HEIGHT = 38
 
 TURN_X_DELTA = 115
-TURN_Y_DELTA = 53
+TURN_Y_DELTA = 48
 
 gemImageNames = os.listdir("Assets/Gems")
 spellImageNames = os.listdir("Assets/Spells")
@@ -140,10 +140,11 @@ while(True):
 	minTop = topLeftLocations.top + 15
 
 	# check if it's our turn
+	pyautogui.moveTo(x = int(minLeft - TURN_X_DELTA), y = int(minTop - TURN_Y_DELTA))
 	if (pyautogui.pixelMatchesColor(int(minLeft - TURN_X_DELTA), int(minTop - TURN_Y_DELTA), (250, 218, 38), tolerance=75)):
 		print("our turn!")
 
-		pyautogui.moveTo(x = 1, y = 1) # make sure mouse doesn't get in the way of detection
+		#pyautogui.moveTo(x = 1, y = 1) # make sure mouse doesn't get in the way of detection
 		# detect gems
 		gemScreenLocations = detect_gems()
 		detectedGemCount = sum(len(gemScreenLocations[gemType]) for gemType in gemScreenLocations)
@@ -171,10 +172,10 @@ while(True):
 
 		# prioritize a skull matching move
 		priorities = {
-			"5" : .91, 
-			"s" : .92, 
+			"5" : .92, 
+			"s" : .91, 
 			"c" : .01, 
-			"e" : .01, 
+			"e" : .02, 
 			"r" : .15, 
 			"y" : .14, 
 			"g" : .14, 
