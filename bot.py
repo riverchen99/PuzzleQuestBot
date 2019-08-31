@@ -24,22 +24,22 @@ def in_bounds(x, y):
 def can_match(a, b):
 	skulls = ["5", "s"]
 	manas = ["r", "g", "b", "y"]
-	wilds = ["2", "4", "6", "8"]
+	wilds = ["2", "3", "4", "6", "8"]
 	return (a == b) or (a in skulls and b in skulls) or (a in manas and b in wilds) or (a in wilds and b in manas)
 
 def move_type(a, b, c):
-	for special_type in ("5", "2", "3"):
+	for special_type in ("5", "2", "3", "4", "6", "8"):
 		if special_type in (a, b, c):
 			return special_type
 	return a
 
 def find_moves(grid):
 	moves = collections.defaultdict(list)
-	for y in range(1, GRID_HEIGHT):
-		for x in range(1, GRID_WIDTH):
+	for y in range(GRID_HEIGHT):
+		for x in range(GRID_WIDTH):
 			if (grid[y][x] != "?"): # brute force a detect 3 move, inspired by https://github.com/akleemans/bejeweled-bot/blob/master/bejeweled-bot.py
 				# (from_x, from_y, to_x, to_y)
-				if (can_match(grid[y][x], grid[y][x-1])):
+				if (in_bounds(x-1, y) and can_match(grid[y][x], grid[y][x-1])):
 					# move into spot right
 					for [dy, dx] in [[-1, 1], [0, 2], [1, 1]]:
 						if (in_bounds(x+dx, y+dy) and can_match(grid[y][x], grid[y+dy][x+dx])):
@@ -50,7 +50,7 @@ def find_moves(grid):
 						if (in_bounds(x+dx, y+dy) and can_match(grid[y][x], grid[y+dy][x+dx])):
 							moves[(x+dx, y+dy, x-2, y)].append(move_type(grid[y][x], grid[y][x-1], grid[y+dy][x+dx]))
 
-				if (can_match(grid[y][x], grid[y-1][x])):
+				if (in_bounds(y-1, x) and can_match(grid[y][x], grid[y-1][x])):
 					# move into spot above
 					for [dy, dx] in [[-2, -1], [-3, 0], [-2, 1]]:
 						if (in_bounds(x+dx, y+dy) and can_match(grid[y][x], grid[y+dy][x+dx])):
@@ -110,7 +110,7 @@ def spin_attack(grid):
 	for y in range(1, GRID_HEIGHT-1):
 		for x in range(1, GRID_WIDTH-1):
 			skullCount = 0
-			for [dy, dx] in [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, -1]]:
+			for [dy, dx] in [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, -1]]:
 				if (grid[y+dy][x+dx] == "s"):
 					skullCount += 1
 				elif (grid[y+dy][x+dx] == "5"):
@@ -140,7 +140,7 @@ while(True):
 	minTop = topLeftLocations.top + 15
 
 	# check if it's our turn
-	if (pyautogui.pixelMatchesColor(int(minLeft - TURN_X_DELTA), int(minTop - TURN_Y_DELTA), (250, 218, 38), tolerance=50)):
+	if (pyautogui.pixelMatchesColor(int(minLeft - TURN_X_DELTA), int(minTop - TURN_Y_DELTA), (250, 218, 38), tolerance=75)):
 		print("our turn!")
 
 		pyautogui.moveTo(x = 1, y = 1) # make sure mouse doesn't get in the way of detection
@@ -179,10 +179,11 @@ while(True):
 			"y" : .14, 
 			"g" : .14, 
 			"b" : 0,
-			"2" : .21,
-			"4" : .22,
-			"6" : .23,
-			"8" : .24
+			"2" : .22,
+			"3" : .23,
+			"4" : .24,
+			"6" : .26,
+			"8" : .28
 		}
 		sortedMoves = sorted(moves, key=lambda move: len(moves[move]) + sum(priorities[move_type] for move_type in moves[move]), reverse = True)
 		
